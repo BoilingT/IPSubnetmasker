@@ -6,6 +6,8 @@
 void printb(int value);
 std::vector<std::string> split(std::string str, std::string delimiter);
 std::string concatenateString(std::string s, std::string delimiter);
+int countChar(std::string str, char c);
+int countBits(int* bits, const int limit);
 
 void StringToBits(std::string s, int* out, const int size /*Amount of bits*/);
 std::string BitsToString(int* bytes, const int size /*Amount of bits*/);
@@ -23,15 +25,29 @@ int main()
     const unsigned int BITS = 4 * 8;
     std::string SubnetmaskStr     = "255.255.240.0";
     std::string IPstr             = "192.168.200.201";
+    
     int IpBits[BITS];
     int SubnetmaskBits[BITS];
 
-    IPtoBin(IPstr, IpBits, BITS /*4 Bytes*/); //Convert IP to binary
-    IPtoBin(SubnetmaskStr, SubnetmaskBits, BITS /*4 Bytes*/); //Convert mask to binary
+    while (countBits(IpBits, BITS) < BITS)
+    {
+        std::cout << "IP: ";
+        std::cin >> IPstr; 
+        IPtoBin(IPstr, IpBits, BITS); //Convert IP to binary
+        if (countBits(IpBits, BITS) < BITS) std::cout << "Wrong format was entered (expected: x.x.x.x)" << std::endl;
+    }
+    std::string IpBitString = BitsToString(IpBits, BITS);
 
-    std::string IpBitString = BitsToString(IpBits, BITS /*4 Bytes*/);
+    while (countBits(SubnetmaskBits, BITS) < BITS)
+    {
+        std::cout << "Subnetmask: ";
+        std::cin >> SubnetmaskStr;
+        IPtoBin(SubnetmaskStr, SubnetmaskBits, BITS); //Convert mask to binary
+        if (countBits(SubnetmaskBits, BITS) < BITS) std::cout << "Wrong format was entered (expected: x.x.x.x)" << std::endl;
+    }
     std::string SubnetmaskBitString = BitsToString(SubnetmaskBits, BITS);
 
+    system("cls");
     std::cout << "IP: " << std::endl;
     std::cout << IPstr << std::endl;
     std::cout << IpBitString << std::endl;
@@ -61,6 +77,7 @@ int main()
     std::cout << "\nDevice ID: " << std::endl;
     std::cout << DeviceId << std::endl;
     std::cout << DeviceIDBitsString << std::endl;
+    system("pause");
 }
 
 void printb(int value) {
@@ -187,7 +204,7 @@ void IPtoBin(std::string ip, int* bitsOut, const int size  /*Amount of bits*/) {
         ipStr.append(value);
     }
 
-    StringToBits(ipStr, bitsOut, size /*Amount of bits*/);
+    StringToBits(ipStr, bitsOut, ipStr.length() /*Amount of bits*/);
 
 }
 
@@ -235,4 +252,22 @@ std::string concatenateString(std::string s, std::string delimiter) {
         result.append(token);
     }
     return result;
+}
+
+int countChar(std::string str, char c) {
+    int amount = 0;
+    for (char x : str) {
+        if (x == c) amount++;
+    }
+    return amount;
+}
+
+int countBits(int* bits, const int limit) {
+    for (unsigned int i = 0; i < limit; i++) {
+        int bit = bits[i];
+        if (bit != 1 && bit != 0) {
+            return i+1;
+        }
+    }
+    return limit;
 }
